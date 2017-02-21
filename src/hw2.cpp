@@ -9,6 +9,8 @@
 struct Node {
   int key;
   int value;
+  int height;
+  int heavy;
   Node *left;
   Node *right;
 };
@@ -67,20 +69,30 @@ void printTree(Node *root) {
         }
       }
     }
-    // int h_ = (int)pow(2, h-i-1);
-    // int many_ = 2*many;
-    // int block_ = w / many_;
-    // for (int j = 0; j < h_; j++) {
-    //   for (int k = 0; k < many_; k++) {
-    //     for (int l = 0; l < block_; l++) {
-    //       if (k % 2 == 0) {
-    //
-    //       } else {
-    //
-    //       }
-    //     }
-    //   }
-    // }
+    int h_ = (int)pow(2, h-i-1);
+    int many_ = 2*many;
+    int block_ = w / many_;
+    for (int j = 0; j < h_; j++) {
+      std::cout << "\n";
+      for (int k = 0; k < many_; k++) {
+        for (int l = 0; l < block_; l++) {
+          std::cout << std::setfill(' ') << std::setw(nspaces);
+          if (k % 2 == 0) {
+            if (block_ - l == j) {
+              std::cout << "/";
+            } else {
+              std::cout << ' ';
+            }
+          } else {
+            if (l == j) {
+              std::cout << "\\";
+            } else {
+              std::cout << ' ';
+            }
+          }
+        }
+      }
+    }
     std::cout << "\n";
     currents = childrenOf(currents);
   }
@@ -89,12 +101,41 @@ void printTree(Node *root) {
 Node *insert(Node *root, Node *node) {
   if (!root) {
     root = node;
+    root->height = 0;
   } else if (node->key < root->key) {
     root->left = insert(root->left, node);
   } else {
     root->right = insert(root->right, node);
   }
   return root;
+}
+
+Node *rotateLeft(Node *node) {
+    if (!node) {
+        return node;
+    }
+    if (!node->right) {
+        return node;
+    }
+    auto tmp = node->right;
+    node->right = tmp->left;
+    tmp->left = node;
+    node = tmp;
+    return node;
+}
+
+Node *rotateRight(Node *node) {
+    if (!node) {
+        return node;
+    }
+    if (!node->left) {
+        return node;
+    }
+    auto tmp = node->left;
+    node->left = tmp->right;
+    tmp->right = node;
+    node = tmp;
+    return node;
 }
 
 // Any node other than leaves and their parents must have 2 children
@@ -152,7 +193,7 @@ Node *makeBst(std::vector<int> &list) {
   Node *root = NULL;
   mid(0, list.size(), [&root, &list](int i) {
     int k = list[i];
-    Node *node = new Node{k, k, NULL, NULL};
+    Node *node = new Node{k, k, 0, 0, NULL, NULL};
     root = insert(root, node);
   });
   return root;
@@ -170,15 +211,23 @@ int main() {
   //  2   6   1   1
   // / \ / \ / \ / \
   // 1 3 5 7 1 1 1 1
-  std::vector<int> list;
   int x;
-  std::cout << "add ";
-  while (std::cin >> x) {
-    list.push_back(x);
-    Node *root = makeBst(list);
-    std::cout << "----------------\n";
-    printTree(root);
-    std::cout << "----------------\n";
-    std::cout << "add ";
-  }
+  //std::cout << "add ";
+  Node *root = NULL;
+  auto n1 = new Node{1, 1, 0, 0, NULL, NULL};
+  auto n2 = new Node{2, 2, 0, 0, NULL, NULL};
+  auto n3 = new Node{3, 3, 0, 0, NULL, NULL};
+  root = insert(root, n1);
+  root = insert(root, n2);
+  root = insert(root, n3);
+  printTree(root);
+  n2 = rotateLeft(n2);
+  printTree(root);
+  //while (std::cin >> x) {
+  //  root = insert(root, new Node{x, x, 0, 0, NULL, NULL});
+  //  std::cout << "----------------\n";
+  //  printTree(root);
+  //  std::cout << "----------------\n";
+  //  std::cout << "add ";
+  //}
 }
